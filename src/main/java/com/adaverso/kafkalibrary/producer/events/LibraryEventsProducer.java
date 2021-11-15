@@ -1,5 +1,7 @@
 package com.adaverso.kafkalibrary.producer.events;
 
+import java.util.concurrent.ExecutionException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +31,12 @@ public class LibraryEventsProducer {
 	/**
 	 * Sends data to a Kafka Topic. To set a default topic, use
 	 * the kafka.template.default-topic property into the .yml
-	 * file.
+	 * file. Async aproach
 	 * 
 	 * @param libraryEvent
 	 * @throws JsonProcessingException
 	 */
-	public void sendLibraryEvent(LibraryEvent libraryEvent) throws JsonProcessingException {
+	public void sendLibraryEventAsync(LibraryEvent libraryEvent) throws JsonProcessingException {
 		Integer key = libraryEvent.getLibraryEventId();
 		String value = objectMapper.writeValueAsString(libraryEvent.getBook());
 		
@@ -53,6 +55,34 @@ public class LibraryEventsProducer {
 			}
 			
 		});
+	}
+	
+	/**
+	 * Sends data to a Kafka Topic. To set a default topic, use
+	 * the kafka.template.default-topic property into the .yml
+	 * file. Async aproach
+	 * 
+	 * @param libraryEvent
+	 * @return sendResult
+	 * @throws JsonProcessingException
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	public SendResult<Integer, String> sendLibraryEventSync(LibraryEvent libraryEvent) throws JsonProcessingException, InterruptedException, ExecutionException {
+		Integer key = libraryEvent.getLibraryEventId();
+		String value = objectMapper.writeValueAsString(libraryEvent.getBook());
+		SendResult<Integer, String> sendResult;
+		try {
+			sendResult = kafkaTemplate.sendDefault(key, value).get();
+		} catch (InterruptedException | ExecutionException e) {
+			log.error("InterruptedException/ExecutionException while sending data to Kafka Cluster. Message: {}", e.getMessage());
+			throw e;
+		} catch (Exception e) {
+			log.error("Exception while sending data to Kafka Cluster. Message: {}", e.getMessage());
+			throw e;
+		}
+		
+		return sendResult;
 	}
 
 	private void handleFailure(Integer key, String value, Throwable ex) {

@@ -20,7 +20,7 @@ public class LibraryEventsController {
 	@PostMapping("/v1/libraryevent")
 	public ResponseEntity<LibraryEvent> postLibraryEvent(@RequestBody LibraryEvent libraryEvent) 
 			throws JsonProcessingException {
-		this.libraryEventsProducer.sendLibraryEvent(libraryEvent);
+		this.libraryEventsProducer.sendLibraryEventAsync(libraryEvent);
 		return ResponseEntity.status(HttpStatus.CREATED).body(libraryEvent);
 	}
 }
