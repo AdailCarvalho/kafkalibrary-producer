@@ -1,7 +1,11 @@
 package com.adaverso.kafkalibrary.producer.events;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +16,9 @@ import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import com.adaverso.kafkalibrary.producer.domain.LibraryEvent;
+import com.adaverso.kafkalibrary.producer.enums.Headers;
+import com.adaverso.kafkalibrary.producer.enums.Source;
+import com.adaverso.kafkalibrary.producer.enums.Topic;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -58,6 +65,32 @@ public class LibraryEventsProducer {
 	}
 	
 	/**
+	 * Sends data to a given Kafka Topic. Async aproach
+	 * 
+	 * @param libraryEvent
+	 * @throws JsonProcessingException
+	 */
+	public void sendLibraryEventAsync2(LibraryEvent libraryEvent) throws JsonProcessingException {
+		Integer key = libraryEvent.getLibraryEventId();
+		String value = objectMapper.writeValueAsString(libraryEvent.getBook());
+		ListenableFuture<SendResult<Integer, String>> listenableFuture=
+				kafkaTemplate.send(buildProducerRecord(key, value, Source.SCANNER.getName())); 
+		listenableFuture.addCallback(new ListenableFutureCallback<SendResult<Integer, String>>() {
+
+			@Override
+			public void onSuccess(SendResult<Integer, String> result) {
+				handleSuccess(key, value, result);
+			}
+
+			@Override
+			public void onFailure(Throwable ex) {
+				handleFailure(key, value, ex);
+			}
+			
+		});
+	}
+	
+	/**
 	 * Sends data to a Kafka Topic. To set a default topic, use
 	 * the kafka.template.default-topic property into the .yml
 	 * file. Async aproach
@@ -84,6 +117,12 @@ public class LibraryEventsProducer {
 		
 		return sendResult;
 	}
+	
+	private ProducerRecord<Integer, String> buildProducerRecord(Integer key, String value, String source) {
+		List<Header> headers = List.of(new RecordHeader(Headers.SOURCE.getName(), source.getBytes()));
+		return 
+				new ProducerRecord<Integer, String>(Topic.LIBRARY.getName(), null, key, value, headers);
+	}
 
 	private void handleFailure(Integer key, String value, Throwable ex) {
 		log.error("Error sending the message. Exception: {}", ex.getMessage());
@@ -99,4 +138,6 @@ public class LibraryEventsProducer {
 		log.info("Message sent successfully for the key {} and value {}", key, value);
 		log.info("Sent to partition: {}", result.getRecordMetadata().partition());
 	}
+	
+	
 }

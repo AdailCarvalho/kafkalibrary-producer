@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.config.TopicBuilder;
 
+import com.adaverso.kafkalibrary.producer.enums.Topic;
+
 /**
  * AutoCreate is not recommend for production environment. To make sure
  * autocreating won't create topics into a production Kafka Cluster, 
@@ -18,7 +20,7 @@ public class AutoCreateConfig {
 
 	@Bean
 	public NewTopic libraryEvents() {
-		return TopicBuilder.name("library-events")
+		return TopicBuilder.name(Topic.LIBRARY.getName())
 						   .partitions(3)
 						   .replicas(3)
 						   .build();
