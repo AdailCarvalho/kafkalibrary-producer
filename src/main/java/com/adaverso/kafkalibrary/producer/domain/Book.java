@@ -91,10 +91,6 @@ public class Book {
 			return this;
 		}
 		
-		public BookBuilder(Book book) {
-			this.book = book;
-		}
-		
 		public BookBuilder name(String name) {
 			this.book.bookName = name;
 			return this;
