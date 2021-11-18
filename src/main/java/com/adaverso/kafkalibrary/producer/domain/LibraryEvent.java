@@ -2,9 +2,14 @@ package com.adaverso.kafkalibrary.producer.domain;
 
 import java.util.Objects;
 
+import org.springframework.beans.BeanUtils;
+
+import com.adaverso.kafkalibrary.producer.enums.LibraryEventsType;
+
 public class LibraryEvent {
 	
 	private Integer libraryEventId;
+	private LibraryEventsType libraryEventsType;
 	private Book book;
 	
 	public LibraryEvent() {}
@@ -13,6 +18,7 @@ public class LibraryEvent {
 		this.libraryEventId = libraryEventId;
 		this.book = book;
 	}
+	
 	public Integer getLibraryEventId() {
 		return libraryEventId;
 	}
@@ -24,6 +30,18 @@ public class LibraryEvent {
 	}
 	public void setBook(Book book) {
 		this.book = book;
+	}
+	
+	public LibraryEventsType getLibraryEventsType() {
+		return libraryEventsType;
+	}
+
+	public void setLibraryEventsType(LibraryEventsType libraryEventsType) {
+		this.libraryEventsType = libraryEventsType;
+	}
+	
+	public static LibraryEventBuilder builder() {
+		return new LibraryEventBuilder();
 	}
 
 	@Override
@@ -45,6 +63,37 @@ public class LibraryEvent {
 
 	@Override
 	public String toString() {
-		return "LibraryEvent [libraryEventId=" + libraryEventId + ", book=" + book + "]";
+		return "LibraryEvent [libraryEventId=" + libraryEventId + ", libraryEventsType=" + libraryEventsType + ", book="
+				+ book + "]";
+	}
+	
+	public static class LibraryEventBuilder {
+		
+		private LibraryEvent libraryEvent;
+		
+		public LibraryEventBuilder() {
+			this.libraryEvent = new LibraryEvent();
+		}
+		
+		public LibraryEventBuilder libraryEventId(Integer libraryEventId) {
+			this.libraryEvent.libraryEventId = libraryEventId;
+			return this;
+		}
+		
+		public LibraryEventBuilder libraryEventsType(LibraryEventsType libraryEventsType) {
+			this.libraryEvent.libraryEventsType = libraryEventsType;
+			return this;
+		}
+		
+		public LibraryEventBuilder book(Book book) {
+			this.libraryEvent.book = book;
+			return this;
+		}
+		
+		public LibraryEvent build() {
+			LibraryEvent l = new LibraryEvent();
+			BeanUtils.copyProperties(this.libraryEvent, l);
+			return l;
+		}
 	}
 }

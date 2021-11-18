@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.adaverso.kafkalibrary.producer.domain.LibraryEvent;
+import com.adaverso.kafkalibrary.producer.enums.LibraryEventsType;
 import com.adaverso.kafkalibrary.producer.events.LibraryEventsProducer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -20,7 +21,10 @@ public class LibraryEventsController {
 	@PostMapping("/v1/libraryevent")
 	public ResponseEntity<LibraryEvent> postLibraryEvent(@RequestBody LibraryEvent libraryEvent) 
 			throws JsonProcessingException {
+		
+		libraryEvent.setLibraryEventsType(LibraryEventsType.NEW);
 		this.libraryEventsProducer.sendLibraryEventAsync2(libraryEvent);
+		
 		return ResponseEntity.status(HttpStatus.CREATED).body(libraryEvent);
 	}
 }
