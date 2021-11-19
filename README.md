@@ -42,6 +42,7 @@ curl --location --request POST 'localhost:8080/v1/libraryevent' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "libraryEventId": null,
+    "libraryEventType": "NEW",
     "book": {
         "bookId": 1,
         "bookName": "The Art of War",
@@ -55,7 +56,7 @@ curl --location --request POST 'localhost:8080/v1/libraryevent' \
 ```json
 {
     "libraryEventId": null,
-    "libraryEventsType": "NEW",
+    "libraryEventType": "NEW",
     "book": {
         "bookId": 1,
         "bookName": "The Art of War",
