@@ -2,13 +2,22 @@ package com.adaverso.kafkalibrary.producer.domain;
 
 import java.util.Objects;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.BeanUtils;
 
 public class Book {
 
+	@NotNull
 	private Integer bookId;
+	
+	@NotBlank
 	private String bookName;
+	
+	@NotBlank
 	private String bookAuthor;
+	
 	private Integer bookYear;
 	
 	public Book() {}

@@ -30,7 +30,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import com.adaverso.kafkalibrary.producer.domain.Book;
 import com.adaverso.kafkalibrary.producer.domain.LibraryEvent;
-import com.adaverso.kafkalibrary.producer.enums.LibraryEventsType;
+import com.adaverso.kafkalibrary.producer.enums.LibraryEventType;
 
 /**
  * Integration test for LibrarysEventController. webEnvironment config
@@ -42,7 +42,7 @@ import com.adaverso.kafkalibrary.producer.enums.LibraryEventsType;
 @TestPropertySource(properties = {"spring.kafka.producer.bootstrap-servers=${spring.embedded.kafka.brokers}",
 		"spring.kafka.admin.properties.bootstrap.servers=${spring.embedded.kafka.brokers}"
 })
-public class LibraryEventsControllerTest {
+public class LibraryEventControllerIntgTest {
 	
 	@Autowired
 	TestRestTemplate restTemplate;
@@ -89,7 +89,7 @@ public class LibraryEventsControllerTest {
 		
 		LibraryEvent libraryEvent = LibraryEvent.builder()
 												.libraryEventId(null)
-												.libraryEventsType(LibraryEventsType.NEW)
+												.libraryEventsType(LibraryEventType.NEW)
 												.book(book)
 												.build();
 		
@@ -100,7 +100,7 @@ public class LibraryEventsControllerTest {
 		assertEquals(HttpStatus.CREATED, response.getStatusCode());
 		
 		ConsumerRecord<Integer, String> consumerRecord = KafkaTestUtils.getSingleRecord(this.consumer, "library-events");
-		String expectedRecord = "{\"bookId\":1,\"bookName\":\"Grande Sertao: Veredas\",\"bookAuthor\":\"Guimaraes Rosa\",\"bookYear\":1956}";
+		String expectedRecord = "{\"libraryEventId\":null,\"libraryEventsType\":\"NEW\",\"book\":{\"bookId\":1,\"bookName\":\"Grande Sertao: Veredas\",\"bookAuthor\":\"Guimaraes Rosa\",\"bookYear\":1956}}";
 		String valueRecord = consumerRecord.value();
 		
 		assertEquals(expectedRecord, valueRecord);

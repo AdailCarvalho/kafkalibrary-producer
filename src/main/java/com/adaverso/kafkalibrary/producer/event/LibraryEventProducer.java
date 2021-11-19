@@ -1,4 +1,4 @@
-package com.adaverso.kafkalibrary.producer.events;
+package com.adaverso.kafkalibrary.producer.event;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -22,12 +22,11 @@ import com.adaverso.kafkalibrary.producer.enums.Topic;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
 @Component
-public class LibraryEventsProducer {
+public class LibraryEventProducer {
 	
 
-	private static final Logger log = LoggerFactory.getLogger(LibraryEventsProducer.class);
+	private static final Logger log = LoggerFactory.getLogger(LibraryEventProducer.class);
 	
 	@Autowired
 	KafkaTemplate<Integer, String> kafkaTemplate;
@@ -45,7 +44,7 @@ public class LibraryEventsProducer {
 	 */
 	public void sendLibraryEventAsync(LibraryEvent libraryEvent) throws JsonProcessingException {
 		Integer key = libraryEvent.getLibraryEventId();
-		String value = objectMapper.writeValueAsString(libraryEvent.getBook());
+		String value = objectMapper.writeValueAsString(libraryEvent);
 		
 		ListenableFuture<SendResult<Integer, String>> listenableFuture=
 				kafkaTemplate.sendDefault(key, value); 
@@ -72,7 +71,7 @@ public class LibraryEventsProducer {
 	 */
 	public void sendLibraryEventAsync2(LibraryEvent libraryEvent) throws JsonProcessingException {
 		Integer key = libraryEvent.getLibraryEventId();
-		String value = objectMapper.writeValueAsString(libraryEvent.getBook());
+		String value = objectMapper.writeValueAsString(libraryEvent);
 		ListenableFuture<SendResult<Integer, String>> listenableFuture=
 				kafkaTemplate.send(buildProducerRecord(key, value, Source.SCANNER.getName())); 
 		listenableFuture.addCallback(new ListenableFutureCallback<SendResult<Integer, String>>() {
@@ -103,7 +102,7 @@ public class LibraryEventsProducer {
 	 */
 	public SendResult<Integer, String> sendLibraryEventSync(LibraryEvent libraryEvent) throws JsonProcessingException, InterruptedException, ExecutionException {
 		Integer key = libraryEvent.getLibraryEventId();
-		String value = objectMapper.writeValueAsString(libraryEvent.getBook());
+		String value = objectMapper.writeValueAsString(libraryEvent);
 		SendResult<Integer, String> sendResult;
 		try {
 			sendResult = kafkaTemplate.sendDefault(key, value).get();

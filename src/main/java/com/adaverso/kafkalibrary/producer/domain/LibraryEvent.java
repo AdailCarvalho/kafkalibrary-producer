@@ -2,14 +2,20 @@ package com.adaverso.kafkalibrary.producer.domain;
 
 import java.util.Objects;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.BeanUtils;
 
-import com.adaverso.kafkalibrary.producer.enums.LibraryEventsType;
+import com.adaverso.kafkalibrary.producer.enums.LibraryEventType;
 
 public class LibraryEvent {
 	
 	private Integer libraryEventId;
-	private LibraryEventsType libraryEventsType;
+	private LibraryEventType libraryEventsType;
+	
+	@NotNull
+	@Valid
 	private Book book;
 	
 	public LibraryEvent() {}
@@ -32,11 +38,11 @@ public class LibraryEvent {
 		this.book = book;
 	}
 	
-	public LibraryEventsType getLibraryEventsType() {
+	public LibraryEventType getLibraryEventsType() {
 		return libraryEventsType;
 	}
 
-	public void setLibraryEventsType(LibraryEventsType libraryEventsType) {
+	public void setLibraryEventsType(LibraryEventType libraryEventsType) {
 		this.libraryEventsType = libraryEventsType;
 	}
 	
@@ -80,7 +86,7 @@ public class LibraryEvent {
 			return this;
 		}
 		
-		public LibraryEventBuilder libraryEventsType(LibraryEventsType libraryEventsType) {
+		public LibraryEventBuilder libraryEventsType(LibraryEventType libraryEventsType) {
 			this.libraryEvent.libraryEventsType = libraryEventsType;
 			return this;
 		}

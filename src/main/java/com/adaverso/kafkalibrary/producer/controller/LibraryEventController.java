@@ -1,5 +1,7 @@
 package com.adaverso.kafkalibrary.producer.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,21 +10,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.adaverso.kafkalibrary.producer.domain.LibraryEvent;
-import com.adaverso.kafkalibrary.producer.enums.LibraryEventsType;
-import com.adaverso.kafkalibrary.producer.events.LibraryEventsProducer;
+import com.adaverso.kafkalibrary.producer.enums.LibraryEventType;
+import com.adaverso.kafkalibrary.producer.event.LibraryEventProducer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 @RestController
-public class LibraryEventsController {
+public class LibraryEventController {
 	
 	@Autowired
-	LibraryEventsProducer libraryEventsProducer;
+	LibraryEventProducer libraryEventsProducer;
 
 	@PostMapping("/v1/libraryevent")
-	public ResponseEntity<LibraryEvent> postLibraryEvent(@RequestBody LibraryEvent libraryEvent) 
+	public ResponseEntity<LibraryEvent> postLibraryEvent(@RequestBody @Valid LibraryEvent libraryEvent) 
 			throws JsonProcessingException {
 		
-		libraryEvent.setLibraryEventsType(LibraryEventsType.NEW);
+		libraryEvent.setLibraryEventsType(LibraryEventType.NEW);
 		this.libraryEventsProducer.sendLibraryEventAsync2(libraryEvent);
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(libraryEvent);

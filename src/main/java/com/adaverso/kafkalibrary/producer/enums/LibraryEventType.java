@@ -1,6 +1,6 @@
 package com.adaverso.kafkalibrary.producer.enums;
 
-public enum LibraryEventsType {
+public enum LibraryEventType {
 	NEW,
 	UPDATE
 }
