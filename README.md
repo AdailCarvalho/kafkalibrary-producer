@@ -25,13 +25,13 @@ Start up the application using the following command:
 java -jar kafkalibrary-producer-[version].jar
 ```
 
-## Test scenario
+You can also start up running the following command:
 
-Tested running a local cluster with 3 brokers distributed as shown bellow:
+```sh
+./gradlew bootRun
+```
 
-- *broker 0*: port 9092
-- *broker 1*: port 9093
-- *broker 2*: port 9094
+## Usage scenarios
 
 ### Scenario 1 - Sending data to topic library-events
 
@@ -55,6 +55,7 @@ curl --location --request POST 'localhost:8080/v1/libraryevent' \
 ```json
 {
     "libraryEventId": null,
+    "libraryEventsType": "NEW",
     "book": {
         "bookId": 1,
         "bookName": "The Art of War",
@@ -66,7 +67,8 @@ curl --location --request POST 'localhost:8080/v1/libraryevent' \
 - Logs:
 
 ```sh
-Message sent successfully for the key null and value {"bookId":1,"bookName":"The Art of War","bookAuthor":"Sun Tzu"}
+Message sent successfully for the key null and value { "libraryEventId": null, "libraryEventsType": "NEW",
+{"bookId":1,"bookName":"The Art of War","bookAuthor":"Sun Tzu"}}
 partition: 1
 ```
 
