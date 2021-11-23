@@ -4,7 +4,7 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -59,5 +59,30 @@ public class LibraryEventControllerUnitTest {
 					.content(requestBody)
 					.contentType(MediaType.APPLICATION_JSON))
 					.andExpect(status().isCreated());
+	}
+	
+	@Test
+	public void postLibraryEvent_4xx() throws Exception {
+		Book book = Book.builder()
+				.id(null)
+				.author(null)
+				.name("Grande Sertao: Veredas")
+				.year(1956)
+				.build();
+
+		LibraryEvent libraryEvent = LibraryEvent.builder()
+										.libraryEventId(null)
+										.libraryEventsType(LibraryEventType.NEW)
+										.book(book)
+										.build();
+		String requestBody = this.objectMapper.writeValueAsString(libraryEvent);
+		doNothing().when(this.libraryEventProducer).sendLibraryEventAsync2(isA(LibraryEvent.class));
+		
+		String expected = "book.bookAuthor - must not be blank, book.bookId - must not be null";
+		this.mockMvc.perform(post("/v1/libraryevent")
+					.content(requestBody)
+					.contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().is4xxClientError())
+					.andExpect(content().string(expected));
 	}
 }
