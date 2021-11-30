@@ -1,10 +1,11 @@
 package com.adaverso.kafkalibrary.producer.controller;
 
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -53,7 +54,7 @@ public class LibraryEventControllerUnitTest {
 										.book(book)
 										.build();
 		String requestBody = this.objectMapper.writeValueAsString(libraryEvent);
-		doNothing().when(this.libraryEventProducer).sendLibraryEventAsync2(isA(LibraryEvent.class));
+		when((this.libraryEventProducer).sendLibraryEventAsync2(isA(LibraryEvent.class))).thenReturn(null);
 		
 		this.mockMvc.perform(post("/v1/libraryevent")
 					.content(requestBody)
@@ -76,7 +77,7 @@ public class LibraryEventControllerUnitTest {
 										.book(book)
 										.build();
 		String requestBody = this.objectMapper.writeValueAsString(libraryEvent);
-		doNothing().when(this.libraryEventProducer).sendLibraryEventAsync2(isA(LibraryEvent.class));
+		when((this.libraryEventProducer).sendLibraryEventAsync2(isA(LibraryEvent.class))).thenReturn(null);
 		
 		String expected = "book.bookAuthor - must not be blank, book.bookId - must not be null";
 		this.mockMvc.perform(post("/v1/libraryevent")

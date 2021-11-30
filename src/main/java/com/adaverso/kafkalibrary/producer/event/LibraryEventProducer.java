@@ -69,7 +69,7 @@ public class LibraryEventProducer {
 	 * @param libraryEvent
 	 * @throws JsonProcessingException
 	 */
-	public void sendLibraryEventAsync2(LibraryEvent libraryEvent) throws JsonProcessingException {
+	public ListenableFuture<SendResult<Integer, String>> sendLibraryEventAsync2(LibraryEvent libraryEvent) throws JsonProcessingException {
 		Integer key = libraryEvent.getLibraryEventId();
 		String value = objectMapper.writeValueAsString(libraryEvent);
 		ListenableFuture<SendResult<Integer, String>> listenableFuture=
@@ -87,6 +87,8 @@ public class LibraryEventProducer {
 			}
 			
 		});
+		
+		return listenableFuture;
 	}
 	
 	/**
