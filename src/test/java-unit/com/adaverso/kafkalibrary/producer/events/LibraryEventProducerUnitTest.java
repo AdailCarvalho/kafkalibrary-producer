@@ -43,19 +43,7 @@ public class LibraryEventProducerUnitTest {
 
 	@Test
 	void sendLibraryEventAsync2OnFailure() throws JsonProcessingException {
-		
-		Book book = Book.builder()
-				.id(1)
-				.author("Guimaraes Rosa")
-				.name("Grande Sertao: Veredas")
-				.year(1956)
-				.build();
-
-		LibraryEvent libraryEvent = LibraryEvent.builder()
-										.libraryEventId(null)
-										.libraryEventsType(LibraryEventType.NEW)
-										.book(book)
-										.build();
+		LibraryEvent libraryEvent = this.generateLibraryEvent(null, LibraryEventType.NEW, 1, "Guimaraes Rosa", "Grande Sertao: Veredas", 1956);
 		
 		SettableListenableFuture<?> future = new SettableListenableFuture<>();
 		future.setException(new RuntimeException("Error calling Kafka"));
@@ -69,18 +57,7 @@ public class LibraryEventProducerUnitTest {
 	@Test
 	void sendLibraryEventAsync2OnSuccess() throws JsonProcessingException, InterruptedException, ExecutionException {
 		//given
-		Book book = Book.builder()
-				.id(1)
-				.author("Guimaraes Rosa")
-				.name("Grande Sertao: Veredas")
-				.year(1956)
-				.build();
-
-		LibraryEvent libraryEvent = LibraryEvent.builder()
-										.libraryEventId(null)
-										.libraryEventsType(LibraryEventType.NEW)
-										.book(book)
-										.build();
+		LibraryEvent libraryEvent = this.generateLibraryEvent(null, LibraryEventType.NEW, 1, "Guimaraes Rosa", "Grande Sertao: Veredas", 1956);
 		
 		SettableListenableFuture future = new SettableListenableFuture<>();
 		String record = objectMapper.writeValueAsString(libraryEvent);
@@ -100,6 +77,25 @@ public class LibraryEventProducerUnitTest {
 		//then
 		SendResult<Integer, String> sendResult1 = listenableFuture.get();
 		assertThat(sendResult.getRecordMetadata().partition()).isEqualTo(1);
+		
+	}
+	
+	private LibraryEvent generateLibraryEvent(Integer libraryEventId, LibraryEventType libraryEventType, 
+			Integer bookId, String bookAuthor, String bookName, Integer bookYear) {
+		Book book = Book.builder()
+				.id(bookId)
+				.author(bookAuthor)
+				.name(bookName)
+				.year(bookYear)
+				.build();
+
+		LibraryEvent libraryEvent = LibraryEvent.builder()
+										.libraryEventId(libraryEventId)
+										.libraryEventsType(libraryEventType)
+										.book(book)
+										.build();
+		
+		return libraryEvent;
 		
 	}
 }

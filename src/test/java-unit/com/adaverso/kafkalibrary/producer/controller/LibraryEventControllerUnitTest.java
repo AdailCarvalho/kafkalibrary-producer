@@ -3,6 +3,7 @@ package com.adaverso.kafkalibrary.producer.controller;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,18 +42,8 @@ public class LibraryEventControllerUnitTest {
 	
 	@Test
 	public void postLibraryEvent() throws Exception {
-		Book book = Book.builder()
-				.id(1)
-				.author("Guimaraes Rosa")
-				.name("Grande Sertao: Veredas")
-				.year(1956)
-				.build();
-
-		LibraryEvent libraryEvent = LibraryEvent.builder()
-										.libraryEventId(null)
-										.libraryEventsType(LibraryEventType.NEW)
-										.book(book)
-										.build();
+		LibraryEvent libraryEvent = this.generateLibraryEvent(null, LibraryEventType.NEW, 1, "Guimaraes Rosa", "Grande Sertao: Veredas", 1956);
+		
 		String requestBody = this.objectMapper.writeValueAsString(libraryEvent);
 		when((this.libraryEventProducer).sendLibraryEventAsync2(isA(LibraryEvent.class))).thenReturn(null);
 		
@@ -64,18 +55,8 @@ public class LibraryEventControllerUnitTest {
 	
 	@Test
 	public void postLibraryEvent_4xx() throws Exception {
-		Book book = Book.builder()
-				.id(null)
-				.author(null)
-				.name("Grande Sertao: Veredas")
-				.year(1956)
-				.build();
+		LibraryEvent libraryEvent = this.generateLibraryEvent(null, LibraryEventType.NEW, null, null, "Grande Sertao: Veredas", 1956);
 
-		LibraryEvent libraryEvent = LibraryEvent.builder()
-										.libraryEventId(null)
-										.libraryEventsType(LibraryEventType.NEW)
-										.book(book)
-										.build();
 		String requestBody = this.objectMapper.writeValueAsString(libraryEvent);
 		when((this.libraryEventProducer).sendLibraryEventAsync2(isA(LibraryEvent.class))).thenReturn(null);
 		
@@ -85,5 +66,51 @@ public class LibraryEventControllerUnitTest {
 					.contentType(MediaType.APPLICATION_JSON))
 					.andExpect(status().is4xxClientError())
 					.andExpect(content().string(expected));
+	}
+
+	@Test
+	public void putLibraryEvent() throws Exception {
+		LibraryEvent libraryEvent = this.generateLibraryEvent(555, LibraryEventType.UPDATE, 1, "Guimaraes Rosa", "Grande Sertao: Veredas", 1956);
+		
+		String requestBody = this.objectMapper.writeValueAsString(libraryEvent);
+		when((this.libraryEventProducer).sendLibraryEventAsync2(isA(LibraryEvent.class))).thenReturn(null);
+		
+		this.mockMvc.perform(put("/v1/libraryevent")
+					.content(requestBody)
+					.contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void putLibraryEvent_4xx() throws Exception {
+		//null LibraryEventID 
+		LibraryEvent libraryEvent = this.generateLibraryEvent(null, LibraryEventType.UPDATE, 1, "Guimaraes Rosa", "Grande Sertao: Veredas", 1956);
+		
+		String requestBody = this.objectMapper.writeValueAsString(libraryEvent);
+		when((this.libraryEventProducer).sendLibraryEventAsync2(isA(LibraryEvent.class))).thenReturn(null);
+		
+		this.mockMvc.perform(put("/v1/libraryevent")
+					.content(requestBody)
+					.contentType(MediaType.APPLICATION_JSON))
+					.andExpect(status().isBadRequest());
+	}
+	
+	private LibraryEvent generateLibraryEvent(Integer libraryEventId, LibraryEventType libraryEventType, 
+			Integer bookId, String bookAuthor, String bookName, Integer bookYear) {
+		Book book = Book.builder()
+				.id(bookId)
+				.author(bookAuthor)
+				.name(bookName)
+				.year(bookYear)
+				.build();
+
+		LibraryEvent libraryEvent = LibraryEvent.builder()
+										.libraryEventId(libraryEventId)
+										.libraryEventsType(libraryEventType)
+										.book(book)
+										.build();
+		
+		return libraryEvent;
+		
 	}
 }

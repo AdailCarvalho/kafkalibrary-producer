@@ -78,20 +78,9 @@ public class LibraryEventControllerIntgTest {
 	 * to await the assynchronous execution of the producer to complete.
 	 */
 	@Test
-	@Timeout(value = 5)
+	@Timeout(value= 5)
 	public void postLibraryEvent() {
-		Book book = Book.builder()
-						.id(1)
-						.author("Guimaraes Rosa")
-						.name("Grande Sertao: Veredas")
-						.year(1956)
-						.build();
-		
-		LibraryEvent libraryEvent = LibraryEvent.builder()
-												.libraryEventId(null)
-												.libraryEventsType(LibraryEventType.NEW)
-												.book(book)
-												.build();
+		LibraryEvent libraryEvent = this.generateLibraryEvent(null, LibraryEventType.NEW, 1, "Guimaraes Rosa", "Grande Sertao: Veredas", 1956);
 		
 		ResponseEntity<LibraryEvent> response = this.restTemplate.exchange("/v1/libraryevent", HttpMethod.POST, 
 				this.getRequestBody(libraryEvent), LibraryEvent.class);
@@ -106,11 +95,47 @@ public class LibraryEventControllerIntgTest {
 		assertEquals(expectedRecord, valueRecord);
 	}
 	
+	@Test
+	@Timeout(value= 5)
+	public void putLibraryEvent() {
+		LibraryEvent libraryEvent = this.generateLibraryEvent(369, LibraryEventType.UPDATE, 5, "Machado de Assis", "Memórias Póstumas de Brás Cubas", 1881);
+		
+		ResponseEntity<LibraryEvent> response = this.restTemplate.exchange("/v1/libraryevent", HttpMethod.PUT, 
+				this.getRequestBody(libraryEvent), LibraryEvent.class);
+		
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		
+		ConsumerRecord<Integer, String> consumerRecord = KafkaTestUtils.getSingleRecord(this.consumer, "library-events");
+		String expectedRecord = "{\"libraryEventId\":369,\"libraryEventsType\":\"UPDATE\",\"book\":{\"bookId\":5,\"bookName\":\"Memórias Póstumas de Brás Cubas\",\"bookAuthor\":\"Machado de Assis\",\"bookYear\":1881}}";
+		String valueRecord = consumerRecord.value();
+		
+		assertEquals(expectedRecord, valueRecord);
+	}
+	
 	private HttpEntity<LibraryEvent> getRequestBody(LibraryEvent libraryEvent) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("content-type", MediaType.APPLICATION_JSON.toString());
 		
 		return new HttpEntity<>(libraryEvent, headers);
+		
+	}
+	
+	private LibraryEvent generateLibraryEvent(Integer libraryEventId, LibraryEventType libraryEventType, 
+			Integer bookId, String bookAuthor, String bookName, Integer bookYear) {
+		Book book = Book.builder()
+				.id(bookId)
+				.author(bookAuthor)
+				.name(bookName)
+				.year(bookYear)
+				.build();
+
+		LibraryEvent libraryEvent = LibraryEvent.builder()
+										.libraryEventId(libraryEventId)
+										.libraryEventsType(libraryEventType)
+										.book(book)
+										.build();
+		
+		return libraryEvent;
 		
 	}
 }
